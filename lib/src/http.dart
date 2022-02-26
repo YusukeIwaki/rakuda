@@ -1,0 +1,129 @@
+import 'package:http/http.dart' as http;
+
+class Request {
+  final String method;
+  final String path;
+  final List<MapEntry<String, String>> headers;
+  final List<MapEntry<String, String>> queryParameters;
+  final String? body;
+
+  Request(
+    this.method,
+    this.path,
+    this.headers,
+    this.queryParameters,
+    this.body,
+  );
+
+  /// Set extra HTTP header.
+  /// When [name] already exists, the value is replaced with [value].
+  void setHeader(String name, String value) {
+    for (var i = 0; i < headers.length; i++) {
+      final header = headers[i];
+      if (header.key == name) {
+        headers[i] = MapEntry(name, value);
+        return;
+      }
+    }
+    headers.add(MapEntry(name, value));
+  }
+}
+
+class Response {
+  final int status;
+  final List<MapEntry<String, String>> headers;
+  final String? body;
+
+  Response(this.status, this.headers, this.body);
+}
+
+typedef PerformRequest = Future<Response> Function(Request request);
+
+typedef Interceptor = Future<Response> Function(
+    PerformRequest performRequest, Request request);
+
+String _normalizedBaseURLFor(String baseURL) {
+  final uri = Uri.parse(baseURL);
+  if (uri.path.endsWith('/')) {
+    return uri
+        .replace(
+          path: uri.path.substring(0, uri.path.length - 1),
+          query: null,
+          fragment: null,
+        )
+        .toString();
+  } else {
+    return uri
+        .replace(
+          query: null,
+          fragment: null,
+        )
+        .toString();
+  }
+}
+
+class _Client {
+  final String baseURL;
+  final List<Interceptor> interceptors;
+  _Client(this.baseURL, this.interceptors);
+
+  Future<Response> _executeRequestInternal(Request request) async {
+    final Map<String, String> queryParameters = request.queryParameters.fold(
+      {},
+      (previous, entry) {
+        previous[entry.key] = entry.value;
+        return previous;
+      },
+    );
+    final url = Uri.parse('${this.baseURL}${request.path}').replace(
+      queryParameters: queryParameters,
+    );
+
+    // The logic for the code below is copied from http.get, http.pose, and so on.
+    final client = http.Client();
+    try {
+      final httpRequest = http.Request(request.method, url);
+
+      // add headers.
+      httpRequest.headers.addEntries(request.headers);
+
+      // add body if specified.
+      final body = request.body;
+      if (body != null) {
+        httpRequest.body = body;
+      }
+
+      // perform request
+      final streamedResponse = await client.send(httpRequest);
+      final httpResponse = await http.Response.fromStream(streamedResponse);
+
+      return Response(
+        httpResponse.statusCode,
+        httpResponse.headers.entries.toList(),
+        httpResponse.body,
+      );
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Response> executeRequest(Request request) async {
+    final PerformRequest wrapped = interceptors.fold(
+      _executeRequestInternal,
+      ((performRequest, interceptor) =>
+          ((request) => interceptor(performRequest, request))),
+    );
+    return wrapped(request);
+  }
+}
+
+Future<Response> executeRequest(
+  Request request,
+  String baseURL,
+  List<Interceptor> interceptors,
+) async {
+  return _Client(
+    _normalizedBaseURLFor(baseURL),
+    interceptors,
+  ).executeRequest(request);
+}
