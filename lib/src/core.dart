@@ -7,13 +7,55 @@ import 'errors.dart';
 import 'argparse.dart' as argparse;
 import 'http.dart' as http;
 
-Future<http.Response> executeHTTPRequest(
+/// Prepare almost zero-config JSON client.
+/// This methods is based on [createSimpleHTTPClient] and in addition
+/// - insert an interceptor for setting Accept and Content-Type header to application/json
+/// - automarically print the request body if exist
+Future<http.Response> createJSONClient(
   List<String> args,
-  String baseURL,
-  List<http.Interceptor> interceptors,
-) async {
+  String baseURL, {
+  List<http.Interceptor> interceptors = const [],
+  bool printResponse = true,
+}) async {
+  final _interceptors = <http.Interceptor>[
+    (performRequest, request) async {
+      request
+        ..setHeader('Accept', 'application/json')
+        ..setHeader('Content-Type', 'application/json');
+      return await performRequest(request);
+    },
+  ];
+  _interceptors.addAll(interceptors);
+
+  return await createSimpleHTTPClient(
+    args,
+    baseURL,
+    interceptors: _interceptors,
+    printResponse: printResponse,
+  );
+}
+
+/// This method
+/// - parse CLI args
+/// - execute HTTP request
+/// Note that this method doesn't automarically print the response body.
+Future<http.Response> createSimpleHTTPClient(
+  List<String> args,
+  String baseURL, {
+  List<http.Interceptor> interceptors = const [],
+  bool printResponse = true,
+}) async {
+  final requestContext = http.RequestContext(baseURL, interceptors);
   final request = await _buildRequestFromArgs(args);
-  return await http.executeRequest(request, baseURL, interceptors);
+  final response = await requestContext.executeRequest(request);
+
+  if (printResponse) {
+    final responseBody = response.body;
+    if (responseBody != null) {
+      stdout.writeln(responseBody);
+    }
+  }
+  return response;
 }
 
 Future<http.Request> _buildRequestFromArgs(List<String> args) async {

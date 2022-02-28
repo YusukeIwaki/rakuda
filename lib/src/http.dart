@@ -62,10 +62,10 @@ String _normalizedBaseURLFor(String baseURL) {
   }
 }
 
-class _Client {
+class RequestContext {
   final String baseURL;
   final List<Interceptor> interceptors;
-  _Client(this.baseURL, this.interceptors);
+  RequestContext(this.baseURL, this.interceptors);
 
   Future<Response> _executeRequestInternal(Request request) async {
     final Map<String, String> queryParameters = request.queryParameters.fold(
@@ -115,15 +115,4 @@ class _Client {
     );
     return wrapped(request);
   }
-}
-
-Future<Response> executeRequest(
-  Request request,
-  String baseURL,
-  List<Interceptor> interceptors,
-) async {
-  return _Client(
-    _normalizedBaseURLFor(baseURL),
-    interceptors,
-  ).executeRequest(request);
 }
