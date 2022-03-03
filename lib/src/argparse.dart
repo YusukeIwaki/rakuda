@@ -2,6 +2,8 @@ import 'errors.dart';
 
 class MagicParameters {
   String? body;
+
+  bool get isEmpty => body == null;
 }
 
 class ParseResult {
@@ -71,7 +73,7 @@ _ParamsAndHeaders _parseParamsAndHeaders(List<String> args) {
 
   List<MapEntry<String, String>>? cur;
   if (args.length >= 3) {
-    final paramRegExp = RegExp(r'^@?([a-zA-Z_]+)=');
+    final paramRegExp = RegExp(r'^(@?[a-zA-Z_]+)=');
     final headerRegExp = RegExp(r'^([a-zA-Z_-]+):');
 
     for (var i = 2; i < args.length; i++) {
@@ -149,7 +151,7 @@ ParseResult parseArguments(List<String> args) {
 
   final magicParameters = MagicParameters();
   for (final entry in paramsAndHeaders.magicParameters) {
-    if (entry.key == 'body') {
+    if (entry.key == '@body') {
       magicParameters.body = entry.value;
     } else {
       throw InvalidArgumentException('Unknown parameter: @${entry.key}');

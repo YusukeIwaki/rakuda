@@ -66,10 +66,6 @@ void main() {
     expect(result.path, equals('/current_user'));
     expect(result.headers, isEmpty);
     expect(result.queryParameters, isEmpty);
-    expect(result.magicParameters, hasLength(1));
-    expect(
-      result.magicParameters.toString(),
-      equals(MapEntry('body', 'file data.json').toString()),
-    );
+    expect(result.magicParameters.body, equals("form data.json"));
   });
 }
