@@ -21,7 +21,7 @@ Future<Response> logging(performRequest, request) async {
 void main(List<String> arguments) async {
   await createSimpleHTTPClient(
     arguments,
-    'https://petstore.swagger.io/v2',
+    baseURL: 'https://petstore.swagger.io/v2',
     interceptors: [addJsonHeader, logging],
   );
 }

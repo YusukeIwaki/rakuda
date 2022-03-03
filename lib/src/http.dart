@@ -75,7 +75,7 @@ class RequestContext {
         return previous;
       },
     );
-    final url = Uri.parse('${this.baseURL}${request.path}').replace(
+    final url = Uri.parse('$baseURL${request.path}').replace(
       queryParameters: queryParameters,
     );
 

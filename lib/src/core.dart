@@ -12,8 +12,8 @@ import 'http.dart' as http;
 /// - insert an interceptor for setting Accept and Content-Type header to application/json
 /// - automarically print the request body if exist
 Future<http.Response> createJSONClient(
-  List<String> args,
-  String baseURL, {
+  List<String> args, {
+  required String baseURL,
   List<http.Interceptor> interceptors = const [],
   bool printResponse = true,
 }) async {
@@ -29,7 +29,7 @@ Future<http.Response> createJSONClient(
 
   return await createSimpleHTTPClient(
     args,
-    baseURL,
+    baseURL: baseURL,
     interceptors: _interceptors,
     printResponse: printResponse,
   );
@@ -40,8 +40,8 @@ Future<http.Response> createJSONClient(
 /// - execute HTTP request
 /// Note that this method doesn't automarically print the response body.
 Future<http.Response> createSimpleHTTPClient(
-  List<String> args,
-  String baseURL, {
+  List<String> args, {
+  required String baseURL,
   List<http.Interceptor> interceptors = const [],
   bool printResponse = true,
 }) async {
