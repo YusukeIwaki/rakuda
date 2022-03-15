@@ -27,6 +27,19 @@ class Request {
     }
     headers.add(MapEntry(name, value));
   }
+
+  /// Replace queryParameters with [replace] function,
+  /// for the entries which meets the [predicate] function.
+  void replaceQueryParameter(
+    bool Function(MapEntry<String, String> entry) predicate,
+    MapEntry<String, String> Function(MapEntry<String, String> entry) replace,
+  ) {
+    for (var i = 0; i < queryParameters.length; i++) {
+      if (predicate(queryParameters[i])) {
+        queryParameters[i] = replace(queryParameters[i]);
+      }
+    }
+  }
 }
 
 class Response {

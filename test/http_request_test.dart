@@ -17,4 +17,14 @@ void main() {
       'DART2',
     );
   });
+
+  test('Request#replaceQueryParameter', () {
+    final request = Request('GET', '/hoge', [], [MapEntry('foo', 'bar')], null);
+    request.replaceQueryParameter(
+      (entry) => entry.value == 'bar',
+      (entry) => MapEntry(entry.key, 'baz'),
+    );
+    expect(request.queryParameters.first.key, 'foo');
+    expect(request.queryParameters.first.value, 'baz');
+  });
 }
