@@ -1,4 +1,4 @@
-name: Dart
+name: Test
 
 on:
   pull_request:
@@ -7,10 +7,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk:
+          - beta
+          - dev
+          - stable
+          - 2.12.4
+          - 2.14.4
 
     steps:
       - uses: actions/checkout@v2
       - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
       - name: Install dependencies
         run: dart pub get
       - name: Verify formatting
@@ -19,3 +30,5 @@ jobs:
         run: dart analyze
       - name: Run tests
         run: dart test
+      - name: Execute example
+        run: dart example/github_api.dart GET /repos/YusukeIwaki/rakuda

@@ -13,7 +13,7 @@ class _CacheDir {
         'Roaming',
         name,
       );
-    } else if (Platform.isMacOS || Platform.isMacOS) {
+    } else if (Platform.isMacOS || Platform.isLinux) {
       return path.join(Platform.environment['HOME']!, '.$name');
     } else {
       throw Exception('Not compatible with Flutter.');
