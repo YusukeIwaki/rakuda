@@ -23,5 +23,6 @@ void main(List<String> arguments) async {
     arguments,
     baseURL: 'https://petstore.swagger.io/v2',
     interceptors: [addJsonHeader, logging],
+    printResponse: false,
   );
 }
