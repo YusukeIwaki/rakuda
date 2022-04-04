@@ -31,7 +31,7 @@ Future<http.Response> createJSONClient(
 
   final requestContext = http.RequestContext(
     baseURL: baseURL,
-    interceptors: interceptors,
+    interceptors: _interceptors,
   );
   final request = await buildRequestFromArgs(args);
   final response = await requestContext.executeRequest(request);
