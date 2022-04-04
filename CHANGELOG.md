@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Fix request interceptors to work.
+
 ## 0.2.0
 
 - `RequestContext` and `buildResponseFromArgs` are exposed. More detailed handling of HTTP can be implemented with them.
