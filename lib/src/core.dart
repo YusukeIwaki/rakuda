@@ -8,9 +8,11 @@ import 'argparse.dart' as argparse;
 import 'http.dart' as http;
 
 /// Prepare almost zero-config JSON client.
-/// This methods is based on [createSimpleHTTPClient] and in addition
+/// This method
+/// - parse CLI args
+/// - execute HTTP request
 /// - insert an interceptor for setting Accept and Content-Type header to application/json
-/// - automarically print the request body if exist
+/// - automarically print the response body if [printResponse]
 Future<http.Response> createJSONClient(
   List<String> args, {
   required String baseURL,
@@ -27,26 +29,11 @@ Future<http.Response> createJSONClient(
   ];
   _interceptors.addAll(interceptors);
 
-  return await createSimpleHTTPClient(
-    args,
+  final requestContext = http.RequestContext(
     baseURL: baseURL,
-    interceptors: _interceptors,
-    printResponse: printResponse,
+    interceptors: interceptors,
   );
-}
-
-/// This method
-/// - parse CLI args
-/// - execute HTTP request
-/// Note that this method doesn't automarically print the response body.
-Future<http.Response> createSimpleHTTPClient(
-  List<String> args, {
-  required String baseURL,
-  List<http.Interceptor> interceptors = const [],
-  bool printResponse = true,
-}) async {
-  final requestContext = http.RequestContext(baseURL, interceptors);
-  final request = await _buildRequestFromArgs(args);
+  final request = await buildRequestFromArgs(args);
   final response = await requestContext.executeRequest(request);
 
   if (printResponse) {
@@ -58,7 +45,7 @@ Future<http.Response> createSimpleHTTPClient(
   return response;
 }
 
-Future<http.Request> _buildRequestFromArgs(List<String> args) async {
+Future<http.Request> buildRequestFromArgs(List<String> args) async {
   final cliArgs = argparse.parseArguments(args);
   final cliArgsBodyParam = cliArgs.magicParameters.body;
   String? body;

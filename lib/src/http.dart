@@ -78,7 +78,7 @@ String _normalizedBaseURLFor(String baseURL) {
 class RequestContext {
   final String baseURL;
   final List<Interceptor> interceptors;
-  RequestContext(this.baseURL, this.interceptors);
+  RequestContext({required this.baseURL, required this.interceptors});
 
   Future<Response> _executeRequestInternal(Request request) async {
     final Map<String, String> queryParameters = request.queryParameters.fold(
