@@ -45,8 +45,11 @@ Future<http.Response> createSimpleHTTPClient(
   List<http.Interceptor> interceptors = const [],
   bool printResponse = true,
 }) async {
-  final requestContext = http.RequestContext(baseURL, interceptors);
-  final request = await _buildRequestFromArgs(args);
+  final requestContext = http.RequestContext(
+    baseURL: baseURL,
+    interceptors: interceptors,
+  );
+  final request = await buildRequestFromArgs(args);
   final response = await requestContext.executeRequest(request);
 
   if (printResponse) {
@@ -58,7 +61,7 @@ Future<http.Response> createSimpleHTTPClient(
   return response;
 }
 
-Future<http.Request> _buildRequestFromArgs(List<String> args) async {
+Future<http.Request> buildRequestFromArgs(List<String> args) async {
   final cliArgs = argparse.parseArguments(args);
   final cliArgsBodyParam = cliArgs.magicParameters.body;
   String? body;

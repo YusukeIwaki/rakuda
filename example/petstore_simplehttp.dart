@@ -19,10 +19,10 @@ Future<Response> logging(performRequest, request) async {
 }
 
 void main(List<String> arguments) async {
-  final request = await buildRequestFromArgs(arguments);
-  final context = RequestContext(
+  await createSimpleHTTPClient(
+    arguments,
     baseURL: 'https://petstore.swagger.io/v2',
     interceptors: [addJsonHeader, logging],
+    printResponse: false,
   );
-  await context.executeRequest(request);
 }
