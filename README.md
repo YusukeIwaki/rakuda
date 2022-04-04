@@ -51,7 +51,16 @@ $ echo '{"id": 2, "name": "xx"}' | ./petstore PUT /pet
 
 `createJSONClient` just add 2 headers: `Accept: application/json` and `Content-Type: application/json`.
 
-If you want to create non-json client, use `createSimpleHTTPClient` instead.
+If you want to create more detailed client, use `buildRequestFromArgs` and `RequestContext` instead.
+
+```dart
+  final request = await buildRequestFromArgs(arguments);
+  final context = RequestContext(
+    baseURL: 'https://petstore.swagger.io/v2',
+    interceptors: [],
+  );
+  final response = await context.executeRequest(request);
+```
 
 ### Interceptor
 
