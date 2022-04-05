@@ -19,19 +19,12 @@ Future<http.Response> createJSONClient(
   List<http.Interceptor> interceptors = const [],
   bool printResponse = true,
 }) async {
-  final _interceptors = <http.Interceptor>[
-    (performRequest, request) async {
-      request
-        ..setHeader('Accept', 'application/json')
-        ..setHeader('Content-Type', 'application/json');
-      return await performRequest(request);
-    },
-  ];
-  _interceptors.addAll(interceptors);
-
   final requestContext = http.RequestContext(
     baseURL: baseURL,
-    interceptors: _interceptors,
+    interceptors: <http.Interceptor>[
+      injectHeadersForJsonRequest,
+      ...interceptors,
+    ],
   );
   final request = await buildRequestFromArgs(args);
   final response = await requestContext.executeRequest(request);
@@ -43,6 +36,14 @@ Future<http.Response> createJSONClient(
     }
   }
   return response;
+}
+
+Future<http.Response> injectHeadersForJsonRequest(
+    http.PerformRequest performRequest, http.Request request) {
+  request
+    ..setHeader('Accept', 'application/json')
+    ..setHeader('Content-Type', 'application/json');
+  return performRequest(request);
 }
 
 Future<http.Request> buildRequestFromArgs(List<String> args) async {
