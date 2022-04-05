@@ -1,3 +1,7 @@
+## 0.2.2
+
+- `injectHeadersForJsonRequest` is now available for appending headers 'Accept: application/json' and 'Content-Type: application/json'.
+
 ## 0.2.1
 
 - Fix request interceptors to work.
